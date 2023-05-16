@@ -122,8 +122,7 @@ void QuickSort2(vector<int> &arr) {
 
 void QuickSort(vector<int> &arr) {
     int l{}, r = arr.size() - 1;
-    // with STL: stack
-    stack<pair<int, int>> st;
+    stack<pair<int, int>> st; // STL
     st.push({l, r});
     while (!st.empty()) {
         tie(l, r) = st.top();

@@ -142,8 +142,8 @@ public:
 void t1() {
     //
     LRUCache lru(2);
-    lru.put(1, 1); // 缓存是 {1=1}
-    lru.put(2, 2); // 缓存是 {1=1, 2=2}
+    lru.put(1, 1);              // 缓存是 {1=1}
+    lru.put(2, 2);              // 缓存是 {1=1, 2=2}
 
     cout << lru.get(1) << endl; // 返回 1
     lru.print();

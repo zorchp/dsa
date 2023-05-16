@@ -10,25 +10,24 @@ template <typename T,
           class Compare = less<T>>
 class Priority_Queue { // 默认小根堆
     vector<T> arr;
-    size_t len;
-    Compare comp;
+    Compare Comp;
 
 public:
-    Priority_Queue() : arr(), len() {}
+    Priority_Queue() : arr() {}
 
-    int top() { return arr[0]; }
-    bool empty() { return len == 0; }
-    int size() { return len; }
+    int top() const { return arr.front(); }
+    bool empty() const { return arr.empty(); }
+    int size() const { return arr.size(); }
 
     void pop() {
-        if (len == 0) return;
-        arr[0] = arr[--len]; // 弹出队头元素
+        if (arr.empty()) return;
+        arr.front() = arr.back(); // 弹出队头元素
         arr.pop_back();
         int i{};
         for (;;) { // Heapify
             int tmp{i}, l{2 * i + 1}, r{2 * i + 2};
-            if (l < len && comp(arr[l], arr[tmp])) tmp = l;
-            if (r < len && comp(arr[r], arr[tmp])) tmp = r;
+            if (l < arr.size() && Comp(arr[l], arr[tmp])) tmp = l;
+            if (r < arr.size() && Comp(arr[r], arr[tmp])) tmp = r;
             if (tmp != i) {
                 swap(arr[i], arr[tmp]);
                 i = tmp;
@@ -39,7 +38,7 @@ public:
     void push(int key) {
         //
         arr.emplace_back(key);
-        for (auto i{len++}; i > 0 && comp(arr[i], arr[(i - 1) / 2]);
+        for (auto i{arr.size() - 1}; i > 0 && Comp(arr[i], arr[(i - 1) / 2]);
              i = (i - 1) / 2)
             swap(arr[(i - 1) / 2], arr[i]);
     }
