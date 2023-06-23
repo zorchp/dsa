@@ -58,7 +58,7 @@ void Dijkstra_Heap(const vector<vector<int>> &g, vector<int> &dis) { // O(nlogn)
     dis[0] = 0; // 源点开始
 
     // 优先队列存 节点对应的距离和对应的下标索引
-    priority_queue<Node, vector<Node>, greater<Node>> pq;
+    priority_queue<Node, vector<Node>, greater<>> pq;
     pq.emplace(0, 0);
     while (!pq.empty()) {
         int u = pq.top().u;

@@ -1,95 +1,114 @@
 #include <bits/stdc++.h>
 using namespace std;
-
 class LFUCache {
+    struct Node {
+        Node() : Node(0, 0, 1, nullptr, nullptr) {}
+        Node(int _key, int _val) : Node(_key, _val, 1, nullptr, nullptr) {}
+        Node(int _key, int _val, int _cnt, Node* _prev, Node* _next)
+            : key(_key), val(_val), cnt(_cnt), prev(_prev), next(_next) {}
+        int key, val, cnt;
+        Node *prev, *next;
+    };
+    struct List {
+        Node *head, *tail;
+        List() : head(new Node), tail(new Node) {
+            head->next = tail, tail->prev = head;
+        }
+        void addToHead(Node* node) {
+            node->next = head->next, node->prev = head;
+            head->next->prev = node, head->next = node;
+        }
+        void delNode(Node* node) {
+            node->next->prev = node->prev;
+            node->prev->next = node->next;
+        }
+        bool empty() const { return head->next == tail; }
+        Node* getTail() { return !empty() ? tail->prev : nullptr; }
+    };
+    void inc(Node* node) {
+        int freq = node->cnt;
+        auto lst = cntMap[freq];
+        lst->delNode(node);
+        if (freq == min_cnt && lst->empty()) {
+            ++min_cnt;
+            delete lst->head;
+            delete lst->tail;
+            cntMap.erase(freq);
+        }
+        auto next_list = cntMap[freq + 1];
+        if (!next_list) {
+            next_list = new List;
+            cntMap[freq + 1] = next_list;
+        }
+        ++node->cnt;
+        next_list->addToHead(node);
+    }
+
+    int capacity, min_cnt;
+    unordered_map<int, Node*> cache;
+    unordered_map<int, List*> cntMap; // 记录频率
+
 public:
-    LFUCache(int _c) : capacity(_c), minFreq() {}
+    LFUCache(int _capacity) : capacity(_capacity), min_cnt(0) {}
 
     int get(int key) {
-        if (!keyMap.count(key)) return -1;
-        auto node = keyMap[key];
-        increment(node);
-        return node->value;
+        if (!cache.count(key)) return -1;
+        auto node = cache[key];
+        inc(node);
+        return node->val;
     }
 
     void put(int key, int value) {
         if (!capacity) return;
         Node* node{};
-        if (keyMap.count(key)) {
-            node = keyMap[key];
-            node->value = value;
-            increment(node);
+        if (cache.count(key)) {
+            node = cache[key];
+            node->val = value;
+            inc(node);
         } else {
-            if (keyMap.size() == capacity) {
-                auto minList = freqMap[minFreq];
-                node = minList->getTail();
-                keyMap.erase(node->key);
-                minList->deleteNode(node);
+            if (cache.size() == capacity) {
+                auto min_list = cntMap[min_cnt];
+                node = min_list->getTail();
+                cache.erase(node->key);
+                min_list->delNode(node);
                 delete node;
-                node = nullptr;
             }
             node = new Node(key, value);
-            auto list = freqMap[1];
-            if (list == nullptr) {
-                list = new List;
-                freqMap[1] = list;
+            auto lst = cntMap[1];
+            if (!lst) {
+                lst = new List;
+                cntMap[1] = lst;
             }
-            list->insertHead(node);
-            keyMap[key] = node;
-            minFreq = 1;
+            lst->addToHead(node);
+            cache[key] = node;
+            min_cnt = 1;
         }
-    }
-
-private:
-    struct Node {
-        int key, value, freq;
-        Node *pre, *next;
-        Node() : Node(0, 0, 1, nullptr, nullptr) {}
-        Node(int k, int v) : Node(k, v, 1, nullptr, nullptr) {}
-        Node(int k, int v, int f, Node* p, Node* n)
-            : key(k), value(v), freq(f), pre(p), next(n) {}
-    };
-    int capacity, minFreq;
-    unordered_map<int, Node*> keyMap;
-    unordered_map<int, List*> freqMap;
-
-    struct List {
-        Node *head, *tail;
-        List() : head(new Node), tail(new Node) {
-            head->next = tail, tail->pre = head; // double dummy
-        }
-        void insertHead(Node* node) {
-            node->next = head->next, node->pre = head;
-            head->next->pre = node, head->next = node;
-        }
-        void deleteNode(Node* node) {
-            node->pre->next = node->next;
-            node->next->pre = node->pre;
-        }
-        bool isEmpty() { return head->next == tail; }
-
-        Node* getTail() {
-            if (isEmpty()) return nullptr;
-            return tail->pre;
-        }
-    };
-
-    void increment(Node* node) {
-        int freq = node->freq;
-        auto list = freqMap[freq];
-        list->deleteNode(node);
-        if (freq == minFreq && list->isEmpty()) minFreq = freq + 1;
-        auto nextList = freqMap[freq + 1];
-        if (nextList == nullptr) {
-            nextList = new List;
-            freqMap[freq + 1] = nextList;
-        }
-        ++node->freq;
-        nextList->insertHead(node);
     }
 };
-
-int main(int argc, char const* argv[]) {
+void t1() {
     //
+    // cnt(x) = 键 x 的使用计数
+    // cache=[] 将显示最后一次使用的顺序（最左边的元素是最近的）
+    LFUCache* lfu = new LFUCache(2);
+    lfu->put(1, 1); // cache=[1,_], cnt(1)=1
+    lfu->put(2, 2); // cache=[2,1], cnt(2)=1, cnt(1)=1
+    lfu->get(1);    // 返回 1
+                    // cache=[1,2], cnt(2)=1, cnt(1)=2
+    lfu->put(3, 3); // 去除键 2 ，因为 cnt(2)=1 ，使用计数最小
+                    // cache=[3,1], cnt(3)=1, cnt(1)=2
+    lfu->get(2);    // 返回 -1（未找到）
+    lfu->get(3);    // 返回 3
+                    // cache=[3,1], cnt(3)=2, cnt(1)=2
+    lfu->put(4, 4); // 去除键 1 ，1 和 3 的 cnt 相同，但 1 最久未使用
+                    // cache=[4,3], cnt(4)=1, cnt(3)=2
+    lfu->get(1); // 返回 -1（未找到）
+    lfu->get(3); // 返回 3
+                 // cache=[3,4], cnt(4)=1, cnt(3)=3
+    lfu->get(4); // 返回 4
+                // cache=[3,4], cnt(4)=2, cnt(3)=3
+}
+int main(int argc, char* argv[]) {
+    //
+    t1();
     return 0;
 }
