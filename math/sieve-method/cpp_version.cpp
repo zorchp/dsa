@@ -1,13 +1,14 @@
 #include <iostream>
+#include <bitset>
 
 using namespace std;
-
-constexpr int maxn = 1e8 + 10;
+#define X 1e7
+constexpr int maxn = X + 10;
 bitset<maxn> pri;
 int primes[maxn];
 
 void era() {
-    int N = 1e8, cnt = 0;
+    int N = X, cnt = 0;
     double s = clock();
     for (int i = 2; i * i <= N; ++i) {
         if (!pri[i]) {
@@ -15,6 +16,7 @@ void era() {
                 pri[j] = 1;
         }
     }
+    // count primes
     for (int i = 2; i <= N; i++)
         if (!pri[i])
             cnt++;
@@ -25,13 +27,13 @@ time = 4252883tic[Finished in 4.9s]*/
 }
 
 void euler() {
-    int N = 1e8, cnt = 0;
+    int N = X, cnt = 0;
     double s = clock();
     for (int i = 2; i <= N; ++i) {
         if (!pri[i])
-            primes[++cnt] = i;
-        for (int j = 1; i * primes[j] <= N; j++) {
-            pri[i * primes[j]] = 1;
+            primes[cnt++] = i; // record ans
+        for (int j{}; i * primes[j] <= N; ++j) {
+            pri[i * primes[j]] = 1; // seive non-primes
             if (i % primes[j] == 0)
                 break;
         }
@@ -42,8 +44,8 @@ void euler() {
 time = 2730051tic[Finished in 3.5s]*/
 }
 
-int main(int argc, char const *argv[]) {
-    // era();
-    euler();
+int main(int argc, char const* argv[]) {
+    era();
+    // euler();
     return 0;
 }

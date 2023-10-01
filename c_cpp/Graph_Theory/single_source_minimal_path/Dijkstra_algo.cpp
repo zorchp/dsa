@@ -38,13 +38,16 @@ void Dijkstra(const vector<vector<int>> &g, vector<int> &dis) { // O(n^2)
         // cur 代表距离源点最近点的索引
         vis[cur] = true;
         // 松弛操作
-        for (int v{}; v < n; ++v)
-            if (g[cur][v] < X && dis[v] > dis[cur] + g[cur][v])
-                dis[v] = dis[cur] + g[cur][v]; //, cout << dis;
+        for (int v{}; v < n; ++v) {
+            if (g[cur][v] < X && dis[v] > dis[cur] + g[cur][v]) {
+                dis[v] = dis[cur] + g[cur][v];
+                // cout << dis;
+            }
+        }
     }
 }
 
-struct Node {
+struct Node { // 到 s 的距离和节点索引
     int dis, u;
     Node(int _dis, int _u) : dis(_dis), u(_u) {}
     bool operator>(const Node &node) const { return dis > node.dis; }
@@ -54,8 +57,8 @@ struct Node {
 void Dijkstra_Heap(const vector<vector<int>> &g, vector<int> &dis) { // O(nlogn)
     int n = dis.size();
     vector<bool> vis(n);
-    dis.assign(n, X);
-    dis[0] = 0; // 源点开始
+    dis.assign(n, X); // 赋值为 inf
+    dis[0] = 0;       // 源点开始
 
     // 优先队列存 节点对应的距离和对应的下标索引
     priority_queue<Node, vector<Node>, greater<>> pq;
@@ -65,10 +68,13 @@ void Dijkstra_Heap(const vector<vector<int>> &g, vector<int> &dis) { // O(nlogn)
         pq.pop();
         if (vis[u]) continue;
         vis[u] = true;
-        for (int v{}; v < n; ++v)
-            if (g[u][v] < X && dis[v] > dis[u] + g[u][v])
-                dis[v] = dis[u] + g[u][v],
-                pq.emplace(dis[v], v); //, cout << dis;
+        for (int v{}; v < n; ++v) {
+            if (g[u][v] < X && dis[v] > dis[u] + g[u][v]) {
+                dis[v] = dis[u] + g[u][v];
+                pq.emplace(dis[v], v);
+                cout << dis;
+            }
+        }
     }
 }
 
@@ -84,10 +90,12 @@ void t1() {
     int n = adjacent_matrix.size();
     vector<int> dis(n);
     vector<bool> vis(n);
-    Dijkstra(adjacent_matrix, dis);
-    // Dijkstra_Heap(adjacent_matrix, dis);
+    // Dijkstra(adjacent_matrix, dis);
+    Dijkstra_Heap(adjacent_matrix, dis);
     cout << dis;
     // just Dijkstra
+    // 0       10      ∞       ∞       ∞
+    // 0       10      ∞       5       ∞
     // 0       8       ∞       5       ∞
     // 0       8       14      5       ∞
     // 0       8       14      5       7
@@ -136,7 +144,7 @@ void t2() {
 }
 
 int main(int argc, char *argv[]) {
-    // t1();
-    t2();
+    t1();
+    // t2();
     return 0;
 }

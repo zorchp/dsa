@@ -1,6 +1,7 @@
 from time import time
 from numpy import array, int64, bool8, append
 from numba import jit
+
 n = int(1e6)
 
 prime = array([], dtype=int64)  # save prime
@@ -28,5 +29,5 @@ s = time()
 Eratosthenes(n, prime)
 e = time()
 print(f"Eratosthenes: time is {e-s}s")
-'''the number of prime is:  78498
-Eratosthenes: time is 0.23691391944885254s'''
+"""the number of prime is:  78498
+Eratosthenes: time is 0.23691391944885254s"""

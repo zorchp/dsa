@@ -5,6 +5,7 @@
 #include <ctime>   //time
 #include <queue>   // priority_queue
 #include <sstream>
+#include <functional>
 #include <chrono>
 
 using namespace std;
@@ -31,7 +32,7 @@ ostream &operator<<(ostream &os, const vector<T> &v) {
 // 输出邻接表
 ostream &operator<<(ostream &os, const vector<vector<Edge>> &tb) {
     cout << "u\tv\tw\n";
-    for (int u{}; u < tb.size(); ++u)
+    for (size_t u{}; u < tb.size(); ++u)
         for (auto e : tb[u]) //
             cout << u << "\t" << e.v << "\t" << e.w << endl;
     return os << endl;

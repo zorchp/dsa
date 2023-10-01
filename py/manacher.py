@@ -16,6 +16,7 @@ def manacher(s):
             idx = i
     return max(p) - 1
 
+
 # 使用马拉车算法求解最长回文子串
 s = 'babcbabcbaccba'
 result = manacher(s)
